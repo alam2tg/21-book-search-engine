@@ -14,6 +14,23 @@ const resolvers = {
 	},
 
 	Mutations: {
+		loginUser: async (parent, { email, password }) => {
+			const user = await User.findOne({ email });
+			if (!user) {
+				throw new AuthenticationError("Incorrect credentials");
+			}
+			const correctPw = await user.isCorrectPassword(password);
+			if (!correctPw) {
+				throw new AuthenticationError("Incorrect credentials");
+			}
+			const token = signToken(user);
+			return { token, user };
+		},
+		addUser: async (parent, { username, email, password }) => {
+			const user = await User.create({ username, email, password });
+			const token = signToken(user);
+			return { token, user };
+		 },
 		saveBook: async (parent, { profileId, bookData }) => {
 			return User.findOneAndUpdate(
 				{ _id: profileId },
@@ -26,25 +43,14 @@ const resolvers = {
 				}
 			);
 		},
-		deleteBook: async (parent, { profileId, bookId }) => {
+		removeBook: async (parent, { profileId, bookId }) => {
 			return User.findOneAndUpdate(
 				{ _id: profileId },
 				{ pull: { savedBooks: bookId } },
 				{ new: true }
 			);
 		},
-		login: async (parent, { email, password }) => {
-			const user = await User.findOne({ email });
-			if (!user) {
-				throw new AuthenticationError("Incorrect credentials");
-			}
-			const correctPw = await user.isCorrectPassword(password);
-			if (!correctPw) {
-				throw new AuthenticationError("Incorrect credentials");
-			}
-			const token = signToken(user);
-			return { token, user };
-		},
+
 	},
 };
 
