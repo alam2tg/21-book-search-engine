@@ -15,6 +15,25 @@ const resolvers = {
 	},
 
 	Mutations: {
+		saveBook: async (parent, { profileId, bookData }) => {
+			return User.findOneAndUpdate(
+				 { _id: profileId },
+				 {
+					  $addToSet: { savedBooks: bookData },
+				 },
+				 {
+					  new: true,
+					  runValidators: true,
+				 }
+			);
+	  },
+	  deleteBook: async (parent, { profileId, bookId }) => {
+			return User.findOneAndUpdate(
+				 { _id: profileId },
+				 {pull: { savedBooks: bookId } },
+				 {new: true}
+			)
+	  },
 
 	},
 
