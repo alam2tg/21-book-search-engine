@@ -7,7 +7,7 @@
   // link: authLink.concat(httpLink),
   // cache: new InMemoryCache() 
 
-
+import Navbar from './components/Navbar'
 import './App.css'
 import { 
   ApolloClient,
@@ -41,11 +41,14 @@ const client = new ApolloClient({
 
 function App() {
   return (
-
+    
     <ApolloProvider client={client}>
-      <div className="container flex-column justify-flex-start min-80-vh">
-        <Outlet />
-      </div>
+      <Navbar />
+      <main>
+        <div className="container flex-column justify-flex-start min-80-vh">
+          <Outlet />
+        </div>
+      </main>
     </ApolloProvider>
 
   );

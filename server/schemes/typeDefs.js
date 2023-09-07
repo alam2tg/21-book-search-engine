@@ -1,7 +1,7 @@
 // create type for User, Book, Auth Token, Query, Mutation
 // check instructions.md
 
-const typeDefs = `
+const typeDefs = `    
     type User {
         _id: ID,
         username: String,
@@ -31,18 +31,20 @@ const typeDefs = `
         token: ID!,
         user: User
     }
-
     type Query {
-        user(username: String!): User
+        me: User
     }
 
     type Mutation {
-        addUser(username: String!, email: String!, password: String!): Auth
         login(email: String!, password: String!): Auth
+        addUser(username: String!, email: String!, password: String!): Auth
+
         saveBook(profileId: ID!, bookData: BookInput!): User
-        deleteBook(profileId: ID!, bookId: ID!): User
+        removeBook(profileId: ID!, bookId: ID!): User
 
     }
+
+
 `
 
 module.exports = typeDefs;

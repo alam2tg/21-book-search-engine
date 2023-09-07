@@ -51,6 +51,7 @@ Website URL:
 * [Apollo_Graph_Ql](https://www.apollographql.com/docs/react/)
 * [setContext](https://www.apollographql.com/docs/react/api/link/apollo-link-context/#overview)
 * [Context_Link](https://www.apollographql.com/docs/react/api/link/apollo-link-context/#caching-lookups)
+* [Resolvers](https://www.apollographql.com/docs/apollo-server/data/resolvers/)
 
 <br>
 
