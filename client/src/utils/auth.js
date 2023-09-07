@@ -14,6 +14,7 @@ class AuthService {
     const token = this.getToken();
     return !!token && !this.isTokenExpired(token); // handwaiving here
   }
+  //converted to boolean value, loggedIn is falsey if token is expired.
 
   // check if token is expired
   isTokenExpired(token) {
