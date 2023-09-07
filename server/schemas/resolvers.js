@@ -8,10 +8,13 @@ const { signToken, AuthenticationError } = require("../utils/auth");
 
 const resolvers = {
 	Query: {
-		user: async (parent, { username }) => {
-			return user.findOne({ username }).populate("savedBooks");
-		},
 
+		me: async () => {
+			if (context.user) {
+			  return User.findOne({ _id: context.user._id }).populate('savedBooks');
+			}
+			throw AuthenticationError;
+		 },
 	},
 
 	Mutation: {
@@ -19,8 +22,8 @@ const resolvers = {
 			const user = await User.create({ username, email, password });
 			const token = signToken(user);
 			return { token, user };
-		 },
-		 login: async (parent, { email, password }) => {
+		},
+		login: async (parent, { email, password }) => {
 			const user = await User.findOne({ email });
 			if (!user) {
 				throw new AuthenticationError("Incorrect credentials");
@@ -34,10 +37,9 @@ const resolvers = {
 			const token = signToken(user);
 			return { token, user };
 		},
-		saveBook: async (parent, { profileId, bookData }) => {
-
+		saveBook: async (parent, { userId, bookData }) => {
 			await User.findOneAndUpdate(
-				{ _id: profileId },
+				{ _id: userId },
 				{
 					$addToSet: { savedBooks: bookData },
 				},
@@ -47,9 +49,9 @@ const resolvers = {
 				}
 			);
 		},
-		deleteBook: async (parent, { profileId, bookId }) => {
+		deleteBook: async (parent, { profileId, userId }) => {
 			return User.findOneAndUpdate(
-				{ _id: profileId },
+				{ _id: userId },
 				{ pull: { savedBooks: bookId } },
 				{ new: true }
 			);

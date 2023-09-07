@@ -4,6 +4,8 @@ import { Form, Button, Alert } from 'react-bootstrap';
 
 import { loginUser } from '../utils/API';
 import Auth from '../utils/auth';
+import { GET_ME } from '../utils/queries';
+import { LOGIN_USER, ADD_USER, SAVE_BOOK, REMOVE_BOOK } from '../utils/mutations';
 
 const LoginForm = () => {
   const [userFormData, setUserFormData] = useState({ email: '', password: '' });
