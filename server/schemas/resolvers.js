@@ -8,21 +8,13 @@ const { signToken, AuthenticationError } = require("../utils/auth");
 
 const resolvers = {
 	Query: {
-
 		me: async () => {
-			if (context.user) {
-			  return User.findOne({ _id: context.user._id }).populate('savedBooks');
+			if(AudioContext.user){
+			  return me.findOne({_id: AudioContext.user._id})
 			}
-			throw AuthenticationError;
 		 },
-	},
 
 	Mutation: {
-		addUser: async (parent, { username, email, password }) => {
-			const user = await User.create({ username, email, password });
-			const token = signToken(user);
-			return { token, user };
-		},
 		login: async (parent, { email, password }) => {
 			const user = await User.findOne({ email });
 			if (!user) {
@@ -37,26 +29,42 @@ const resolvers = {
 			const token = signToken(user);
 			return { token, user };
 		},
-		saveBook: async (parent, { userId, bookData }) => {
-			await User.findOneAndUpdate(
-				{ _id: userId },
-				{
-					$addToSet: { savedBooks: bookData },
-				},
-				{
-					new: true,
-					runValidators: true,
-				}
-			);
+		addUser: async (parent, { username, email, password }) => {
+			const user = await User.create({ username, email, password });
+			const token = signToken(user);
+			return { token, user };
 		},
-		deleteBook: async (parent, { profileId, userId }) => {
-			return User.findOneAndUpdate(
-				{ _id: userId },
-				{ pull: { savedBooks: bookId } },
-				{ new: true }
-			);
+
+		    saveBook: async (parent, {  description,bookId,image,link,title}, context) => {
+      // If context has a `user` property, that means the user executing this mutation has a valid JWT and is logged in
+      if (context.user) {
+        return User.findOneAndUpdate(
+          { _id: context.user._id },
+          {
+            $addToSet: { savedBooks: {description,bookId,image,link,title} },
+          },
+          {
+            new: true,
+            runValidators: true,
+          }
+        );
+      }
+      // If user attempts to execute this mutation and isn't logged in, throw an error
+      throw AuthenticationError;
 		},
+		removeBook: async (parent, { bookId }, context) => {
+			if (context.user) {
+				return User.findOneAndUpdate(
+					{ _id: userId },
+					{ pull: { savedBooks: bookId } },
+					{ new: true }
+			
+			);
+		}
+		throw AuthenticationError;
 	},
-};
+	},
+	}
+}
 
 module.exports = resolvers;
