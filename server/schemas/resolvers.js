@@ -9,31 +9,38 @@ const { signToken, AuthenticationError } = require("../utils/auth");
 const resolvers = {
 	Query: {
 		me: async () => {
-			if(AudioContext.user){
-			  return me.findOne({_id: AudioContext.user._id})
+			if(context.user){
+			  return User.findOne({_id: context.user._id})
 			}
+			throw AuthenticationError
 		 },
 
 	Mutation: {
+		addUser: async (parent, { username, email, password }) => {
+			const user = await User.create({ username, email, password });
+			const token = signToken(user);
+			
+			return { token, user };
+		},
+		//checked for bugs
+
 		login: async (parent, { email, password }) => {
 			const user = await User.findOne({ email });
+
+
 			if (!user) {
-				throw new AuthenticationError("Incorrect credentials");
+				throw AuthenticationError;
 			}
 
 			const correctPw = await user.isCorrectPassword(password);
 			if (!correctPw) {
-				throw new AuthenticationError("Incorrect credentials");
+				throw AuthenticationError;
 			}
 
 			const token = signToken(user);
 			return { token, user };
 		},
-		addUser: async (parent, { username, email, password }) => {
-			const user = await User.create({ username, email, password });
-			const token = signToken(user);
-			return { token, user };
-		},
+
 
 		saveBook: async (parent, { description, bookId, image, link, title}, context) => {
       // If context has a `user` property, that means the user executing this mutation has a valid JWT and is logged in
@@ -41,7 +48,8 @@ const resolvers = {
         return User.findOneAndUpdate(
           { _id: context.user._id },
           {
-            $addToSet: { savedBooks: {description,bookId,image,link,title} },
+            $addToSet: { savedBooks: Book },
+				// {description,bookId,image,link,title}
           },
           {
             new: true,
@@ -52,11 +60,11 @@ const resolvers = {
       // If user attempts to execute this mutation and isn't logged in, throw an error
       throw AuthenticationError;
 		},
-		removeBook: async (parent, { bookId }, context) => {
+		removeBook: async (parent, { book }, context) => {
 			if (context.user) {
-				return User.findOneAndUpdate(
-					{ _id: userId },
-					{ pull: { savedBooks: bookId } },
+				return User.findOneAndDelete(
+					{ _id: context.userId },
+					{ $pull: { savedBooks: book } },
 					{ new: true }
 			
 			);
@@ -66,5 +74,6 @@ const resolvers = {
 	},
 	}
 }
+//debugged removeBook
 
 module.exports = resolvers;
